@@ -1,0 +1,7 @@
+{
+  "name": "YouTube Agent",
+  "description": "An intelligent agent that analyzes YouTube videos or transcripts to produce detailed summaries, timestamps, study notes, and content themes.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
