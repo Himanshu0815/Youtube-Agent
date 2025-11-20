@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { AnalysisData, ChatMessage } from '../types';
 import { askVideoQuestion } from '../services/geminiService';
@@ -83,6 +84,51 @@ export const ChatInterface: React.FC<Props> = ({ data }) => {
     return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Helper to convert timestamp string (e.g. "1:30", "1:05:20") to total seconds
+  const timeToSeconds = (timeStr: string) => {
+    // Remove brackets [ ] if present
+    const cleanTime = timeStr.replace(/[\[\]]/g, '');
+    const parts = cleanTime.split(':').map(Number).reverse();
+    // parts[0] = seconds, parts[1] = minutes, parts[2] = hours
+    let totalSeconds = 0;
+    if (parts[0]) totalSeconds += parts[0];
+    if (parts[1]) totalSeconds += parts[1] * 60;
+    if (parts[2]) totalSeconds += parts[2] * 3600;
+    return totalSeconds;
+  };
+
+  // Helper to render message content with clickable highlighted timestamps
+  const renderMessageContent = (content: string) => {
+    // Regex to find timestamps like [12:30], (1:30), or 12:30
+    const parts = content.split(/(\[?\d{1,2}:\d{2}(?::\d{2})?\]?)/g);
+    return parts.map((part, i) => {
+      // Check if part is a timestamp
+      if (/^\[?\d{1,2}:\d{2}(?::\d{2})?\]?$/.test(part)) {
+        // If we have a valid videoId (from URL mode), create a link
+        if (data.videoId && data.videoId !== "NOT_FOUND") {
+            const seconds = timeToSeconds(part);
+            const url = `https://www.youtube.com/watch?v=${data.videoId}&t=${seconds}s`;
+            
+            return (
+                <a 
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-yt-red hover:text-red-400 font-mono font-bold mx-1 underline decoration-dotted underline-offset-2 cursor-pointer transition-colors"
+                  title={`Open video at ${part}`}
+                >
+                  {part}
+                </a>
+            );
+        }
+        // Fallback styling for transcripts/audio uploads without a YouTube ID
+        return <span key={i} className="text-yt-red font-mono font-bold mx-1">{part}</span>;
+      }
+      return part;
+    });
+  };
+
   return (
     <div className="flex flex-col h-[600px] bg-black/40 rounded-xl border border-gray-800 overflow-hidden animate-fade-in shadow-2xl relative">
       {/* Header */}
@@ -121,7 +167,7 @@ export const ChatInterface: React.FC<Props> = ({ data }) => {
                     }
                 `}
                 >
-                {msg.content}
+                {renderMessageContent(msg.content)}
                 </div>
                 <p className={`text-[10px] text-gray-500 mt-1.5 px-1 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
                     {formatTime(msg.timestamp)}

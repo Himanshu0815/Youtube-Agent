@@ -275,7 +275,15 @@ export const analyzeTranscript = async (
     throw new Error("No response from Gemini.");
   }
 
-  return sanitizeData(parseGenerativeJson(response.text));
+  const rawData = parseGenerativeJson(response.text);
+  const finalData = sanitizeData(rawData);
+  
+  // Preserve the input transcript if the model didn't echo it back
+  if (!finalData.transcript && transcript) {
+      finalData.transcript = transcript;
+  }
+  
+  return finalData;
 };
 
 export const analyzeAudioContent = async (
@@ -422,7 +430,11 @@ export const askVideoQuestion = async (
     Title: ${analysisData.title}
     Type: ${analysisData.videoType}
     Summary: ${analysisData.summary}
-    Themes: ${analysisData.themes.map(t => t.topic).join(', ')}
+    
+    KEY MOMENTS & TIMESTAMPS:
+    ${analysisData.timestamps.map(t => `[${t.time}] ${t.description}`).join('\n')}
+    
+    THEMES: ${analysisData.themes.map(t => t.topic).join(', ')}
     
     TRANSCRIPT/CONTENT START:
     ${analysisData.transcript || "Transcript not available. Answer based on the summary and themes provided."}
@@ -447,6 +459,10 @@ export const askVideoQuestion = async (
     1. Answer ONLY based on the video content provided above.
     2. If the answer is not in the video, say "I couldn't find that information in the video."
     3. Be concise and direct.
+    4. **CITATIONS REQUIRED**: 
+       - You MUST cite your sources when possible.
+       - Refer to specific timestamps from the "KEY MOMENTS" list if relevant (e.g., "As seen at [04:20]...").
+       - If the exact time isn't in the Key Moments, quote the transcript text directly (e.g., "The speaker mentions '...'").
   `;
 
   const response = await ai.models.generateContent({
