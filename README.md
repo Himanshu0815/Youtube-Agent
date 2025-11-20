@@ -78,6 +78,9 @@ The Chat feature uses **In-Context RAG**:
     *   **The Context Block**: Title, Summary, Themes, Key Moments, and Full Transcript (if available).
 3.  Gemini answers strictly based on the Context Block.
 
+<img width="4064" height="2821" alt="YoutubeAgent- Workflow diagram" src="https://github.com/user-attachments/assets/bc14aea4-12f7-4772-b33c-764695819ea9" />
+
+
 ---
 
 ## 📦 Installation & Setup
