@@ -2,6 +2,7 @@
 export interface Timestamp {
   time: string;
   description: string;
+  seconds?: number; // Added for seeking
 }
 
 export interface Theme {
@@ -19,6 +20,7 @@ export interface Quote {
   text: string;
   time: string;
   speaker?: string;
+  seconds?: number; // Added for seeking
 }
 
 export interface SentimentAnalysis {
@@ -38,6 +40,7 @@ export interface SubTopic {
   time: string;
   summary: string;
   speaker?: string;
+  seconds?: number; // Added for seeking
 }
 
 export interface ReviewDetails {
@@ -46,6 +49,26 @@ export interface ReviewDetails {
   pros: string[];
   cons: string[];
   verdict: string;
+}
+
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctAnswer: number; // Index 0-3
+  explanation: string;
+}
+
+export interface QuizData {
+  questions: QuizQuestion[];
+}
+
+export interface ResearchResult {
+  topic: string;
+  definition: string;
+  history: string;
+  keyConcepts: string[];
+  relevance: string;
+  sources: string[];
 }
 
 export interface AnalysisData {
@@ -79,4 +102,13 @@ export interface ChatMessage {
   role: 'user' | 'model';
   content: string;
   timestamp: number;
+}
+
+export interface HistoryItem {
+  id: string; // videoId or timestamp
+  title: string;
+  date: number;
+  thumbnail?: string;
+  type: string;
+  data: AnalysisData;
 }
